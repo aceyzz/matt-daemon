@@ -173,33 +173,6 @@ bool FileOps::lockExclusiveNonBlock(int fd) {
 	return (::flock(fd, LOCK_EX | LOCK_NB) == 0);
 }
 
-// utile pour env
-static inline std::string md_ltrim(std::string s) {
-	size_t i = 0;
-	while (i < s.size() && (s[i] == ' ' || s[i] == '\t')) ++i;
-	return s.substr(i);
-}
-static inline std::string md_rtrim(std::string s) {
-	while (!s.empty() && (s.back() == ' ' || s.back() == '\t' || s.back() == '\r')) s.pop_back();
-	return s;
-}
-static inline std::string md_trim(std::string s) { return md_rtrim(md_ltrim(s)); }
-
-bool FileOps::readKeyValuesFile(const std::string& path, std::unordered_map<std::string,std::string>& kv) {
-	std::ifstream in(path.c_str());
-	if (!in) return false;
-	std::string line;
-	while (std::getline(in, line)) {
-		if (line.empty() || line[0] == '#') continue;
-		std::string::size_type p = line.find('=');
-		if (p == std::string::npos) continue;
-		std::string k = md_trim(line.substr(0, p));
-		std::string v = md_trim(line.substr(p + 1));
-		if (!k.empty()) kv[k] = v;
-	}
-	return true;
-}
-
 bool FileOps::openAppendInternal(const std::string& path, mode_t mode) {
 	_fd = ::open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT | O_CLOEXEC, mode);
 	return (_fd >= 0);

@@ -17,11 +17,12 @@ MAKEFLAGS	:= --no-print-directory
 RM	  		:= rm -rf
 
 # Sources
-TESTS	  	:= $(TSTDIR)/unit-FileOps.cpp
+TESTS	  	:= $(TSTDIR)/unit-FileOps.cpp \
+				$(TSTDIR)/utils.cpp
 
 SRCS	  	:= $(SRCDIR)/main.cpp \
-			   $(SRCDIR)/FileOps.cpp \
-			   $(TESTS)
+				$(SRCDIR)/FileOps.cpp \
+				$(TESTS)
 OBJS	  	:= $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 # Colors

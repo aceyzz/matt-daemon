@@ -31,8 +31,6 @@ class FileOps
 		static void closeFd(int fd);
 		static bool lockExclusiveNonBlock(int fd);
 
-		static bool readKeyValuesFile(const std::string& path, std::unordered_map<std::string,std::string>& kv);
-
 	private:
 		bool openAppendInternal(const std::string& path, mode_t mode = 0640);
 		bool openRWCreateInternal(const std::string& path, mode_t mode = 0640);

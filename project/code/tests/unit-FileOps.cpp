@@ -1,151 +1,124 @@
 #include "MattDaemon.hpp"
 
-static std::string nowstr() {
-	char buf[32];
-	std::time_t t = std::time(NULL);
-	std::strftime(buf, sizeof(buf), "%Y%m%d%H%M%S", std::localtime(&t));
-	return buf;
-}
+struct TestContext {
+	std::string base;
+	std::string sub;
+	std::string f1;
+	std::string f2;
+	FileOps fops;
+	std::vector<std::string> listing;
+	std::string content;
+	std::string beforeReopen;
+};
 
-static void print_result(const std::string& name, const std::string& expected, const std::string& obtained, bool ok) {
-	std::cout << GRY1 "[TEST] " << name << RST
-				<< GRY2 "\nEXPECTED: " RST << expected
-				<< GRY2 "\nOBTAINED: " RST << obtained
-				<< "\nRESULT  : " << (ok ? LIME "PASS" : REDD "FAIL") << RST "\n\n";
-}
+struct Runner {
+	int failures = 0;
+	std::string failingList;
+
+	void expectTrue(const std::string& name, bool ok) {
+		print_result(name, "true", ok ? "true" : "false", ok);
+		if (!ok) { ++failures; failingList += "\n - " + name; }
+	}
+
+	void expectEq(const std::string& name, const std::string& expected, const std::string& obtained, bool ok) {
+		print_result(name, expected, ok ? expected : ("false (\"" + obtained + "\")"), ok);
+		if (!ok) { ++failures; failingList += "\n - " + name; }
+	}
+};
 
 int test_FileOps() {
 	std::cout << CYAN "=================== FileOps ===================" RST "\n";
 
-	std::string base = "/tmp/md_fileops_test_" + nowstr();
+	TestContext ctx;
+	ctx.base = "/tmp/md_fileops_test_" + nowstr();
+	ctx.sub  = ctx.base + "/sub/dir";
+	ctx.f1   = ctx.base + "/log.txt";
+	ctx.f2   = ctx.base + "/renamed.txt";
+
+	Runner R;
 	bool ok;
-	int ret = 0;
 
-	ok = FileOps::ensureDir(base, 0755);
-	print_result("ensureDir(base)", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = FileOps::ensureDir(ctx.base, 0755);
+	R.expectTrue("ensureDir(base)", ok);
 
-	std::string sub = base + "/sub/dir";
-	ok = FileOps::ensureDir(sub, 0755);
-	print_result("ensureDir(sub/dir)", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = FileOps::ensureDir(ctx.sub, 0755);
+	R.expectTrue("ensureDir(sub/dir)", ok);
 
-	ok = FileOps::exists(base);
-	print_result("exists(base)", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = FileOps::exists(ctx.base);
+	R.expectTrue("exists(base)", ok);
 
-	std::vector<std::string> listing;
-	ok = FileOps::listFiles(base, listing);
-	print_result("listFiles(base) returns >=1", "true", (ok && !listing.empty()) ? "true" : "false", ok && !listing.empty());
-	if (!ok) ret++;
+	ctx.listing.clear();
+	ok = FileOps::listFiles(ctx.base, ctx.listing);
+	R.expectTrue("listFiles(base) returns >=1", ok && !ctx.listing.empty());
 
-	std::string f1 = base + "/log.txt";
-	FileOps fops;
-	ok = fops.bind(f1, true);
-	print_result("bind(f1, append=true)", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = ctx.fops.bind(ctx.f1, true);
+	R.expectTrue("bind(f1, append=true)", ok);
 
-	ok = fops.writeLine("hello");
-	print_result("writeLine('hello')", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = ctx.fops.writeLine("hello");
+	R.expectTrue("writeLine('hello')", ok);
 
-	ok = fops.flush();
-	print_result("flush()", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = ctx.fops.flush();
+	R.expectTrue("flush()", ok);
 
 	uint64_t sz = 0;
-	ok = FileOps::sizeOf(f1, sz);
-	print_result("sizeOf(f1) > 0", "true", (ok && sz > 0) ? "true" : "false", ok && sz > 0);
-	if (!ok) ret++;
+	ok = FileOps::sizeOf(ctx.f1, sz);
+	R.expectTrue("sizeOf(f1) > 0", ok && sz > 0);
 
-	std::string content;
-	ok = fops.readAll(content);
-	print_result("readAll(f1) == 'hello\\n'", "true", (ok && content == "hello\n") ? "true" : ("false (\"" + content + "\")"), ok && content == "hello\n");
-	if (!ok) ret++;
+	ok = ctx.fops.readAll(ctx.content);
+	R.expectEq("readAll(f1) == 'hello\\n'", "true", ctx.content, ok && ctx.content == "hello\n");
 
-	ok = fops.write(std::string("world"));
-	print_result("write('world')", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = ctx.fops.write(std::string("world"));
+	R.expectTrue("write('world')", ok);
 
-	ok = fops.write("\n", 1);
-	print_result("write('\\n',1)", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = ctx.fops.write("\n", 1);
+	R.expectTrue("write('\\n',1)", ok);
 
-	ok = fops.readAll(content);
-	print_result("readAll(f1) == 'hello\\nworld\\n'", "true", (ok && content == "hello\nworld\n") ? "true" : ("false (\"" + content + "\")"), ok && content == "hello\nworld\n");
-	if (!ok) ret++;
+	ok = ctx.fops.readAll(ctx.content);
+	R.expectEq("readAll(f1) == 'hello\\nworld\\n'", "true", ctx.content, ok && ctx.content == "hello\nworld\n");
 
-	ok = fops.reopenAppend();
-	print_result("reopenAppend()", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ctx.beforeReopen = ctx.content;
+	ok = ctx.fops.reopenAppend();
+	R.expectTrue("reopenAppend()", ok);
 
-	std::string beforeReopen = content;
-	ok = fops.readAll(content);
-	bool same = ok && content == beforeReopen;
-	print_result("content unchanged after reopenAppend()", "true", same ? "true" : ("false (\"" + content + "\")"), same);
-	if (!ok) ret++;
+	ok = ctx.fops.readAll(ctx.content);
+	R.expectEq("content unchanged after reopenAppend()", "true", ctx.content, ok && ctx.content == ctx.beforeReopen);
 
-	ok = fops.writeLine("after-reopen");
-	print_result("writeLine('after-reopen')", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = ctx.fops.writeLine("after-reopen");
+	R.expectTrue("writeLine('after-reopen')", ok);
 
-	ok = fops.readAll(content);
-	bool endsOk = ok && content.find("after-reopen\n") != std::string::npos;
-	print_result("readAll contains 'after-reopen\\n'", "true", endsOk ? "true" : ("false (\"" + content + "\")"), endsOk);
-	if (!ok) ret++;
+	ok = ctx.fops.readAll(ctx.content);
+	R.expectEq("readAll contains 'after-reopen\\n'", "true", ctx.content, ok && ctx.content.find("after-reopen\n") != std::string::npos);
 
-	std::string f2 = base + "/renamed.txt";
-	ok = FileOps::renameFile(f1, f2);
-	print_result("renameFile(f1->f2)", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = FileOps::renameFile(ctx.f1, ctx.f2);
+	R.expectTrue("renameFile(f1->f2)", ok);
 
-	ok = FileOps::exists(f2);
-	print_result("exists(f2)", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = FileOps::exists(ctx.f2);
+	R.expectTrue("exists(f2)", ok);
 
-	ok = FileOps::removeFile(f2);
-	print_result("removeFile(f2)", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = FileOps::removeFile(ctx.f2);
+	R.expectTrue("removeFile(f2)", ok);
 
-	ok = !FileOps::exists(f2);
-	print_result("exists(f2)==false", "true", ok ? "true" : "false", ok);
-	if (!ok) ret++;
+	ok = !FileOps::exists(ctx.f2);
+	R.expectTrue("exists(f2)==false", ok);
 
-	std::string envp = base + "/env.test";
-	{
-		FileOps tmp;
-		tmp.bind(envp, false);
-		tmp.writeLine("# comment");
-		tmp.writeLine("KEY1=VAL1");
-		tmp.writeLine("KEY2 =  VAL 2");
-		tmp.writeLine("EMPTY=");
-		tmp.unbind();
-	}
-	std::unordered_map<std::string,std::string> kv;
-	ok = FileOps::readKeyValuesFile(envp, kv);
-	bool kvOk = ok && kv["KEY1"] == "VAL1" && kv["KEY2"] == "VAL 2";
-	print_result("readKeyValuesFile basic keys", "true", kvOk ? "true" : "false", kvOk);
-	if (!kvOk) ret++;
-
-	int fd = FileOps::openFd(base + "/lock.lck", O_RDWR | O_CREAT, 0644);
+	int fd = FileOps::openFd(ctx.base + "/lock.lck", O_RDWR | O_CREAT, 0644);
 	bool lockOk = (fd >= 0) && FileOps::lockExclusiveNonBlock(fd);
-	print_result("lockExclusiveNonBlock(fd)", "true", lockOk ? "true" : "false", lockOk);
-	if (!lockOk) ret++;
-	FileOps::closeFd(fd);
+	R.expectTrue("lockExclusiveNonBlock(fd)", lockOk);
+	if (fd >= 0) FileOps::closeFd(fd);
 
-	std::cout << GRY1 "[CLEANUP] Removing test directory tree under " << base << RST "\n";
+	std::cout << GRY1 "[CLEANUP] Removing test directory tree under " << ctx.base << RST "\n";
 	std::vector<std::string> files;
-	if (FileOps::listFiles(base, files)) {
+	if (FileOps::listFiles(ctx.base, files)) {
 		for (size_t i = 0; i < files.size(); ++i) {
-			std::string p = base + "/" + files[i];
-			FileOps::removeFile(p);
+			FileOps::removeFile(ctx.base + "/" + files[i]);
 		}
 	}
-	rmdir((base + "/sub/dir").c_str());
-	rmdir((base + "/sub").c_str());
-	rmdir(base.c_str());
+	rmdir((ctx.base + "/sub/dir").c_str());
+	rmdir((ctx.base + "/sub").c_str());
+	rmdir(ctx.base.c_str());
 
 	std::cout << CYAN "===============================================" RST "\n";
-
-	return ret;
+	final_result(R.failingList, R.failures, 20);
+	std::cout << CYAN "===============================================" RST "\n";
+	return R.failures;
 }
