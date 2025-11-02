@@ -18,6 +18,7 @@ RM	  		:= rm -rf
 
 # Sources
 TESTS	  	:= $(TSTDIR)/unit-FileOps.cpp
+
 SRCS	  	:= $(SRCDIR)/main.cpp \
 			   $(SRCDIR)/FileOps.cpp \
 			   $(TESTS)

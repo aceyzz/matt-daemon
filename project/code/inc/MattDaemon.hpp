@@ -23,7 +23,7 @@
 #include <unistd.h>
 
 #include "Colors.hpp"
-#include "FileOps.hpp"
 #include "Tests.hpp"
+#include "FileOps.hpp"
 
 #define TEST_MODE 1
