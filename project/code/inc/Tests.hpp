@@ -12,6 +12,7 @@ struct Runner {
 
 int	test_FileOps();
 int	test_TintinReporter();
+int test_Server();
 
 // utils
 std::string	nowstr();

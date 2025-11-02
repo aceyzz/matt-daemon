@@ -19,12 +19,14 @@ RM	  		:= rm -rf
 # Sources
 TESTS	  	:= $(TSTDIR)/unit-FileOps.cpp \
 				$(TSTDIR)/unit-Tintin_reporter.cpp \
+				$(TSTDIR)/unit-Server.cpp \
 				$(TSTDIR)/runner.cpp \
 				$(TSTDIR)/utils.cpp
 
 SRCS	  	:= $(SRCDIR)/main.cpp \
 				$(SRCDIR)/FileOps.cpp \
 				$(SRCDIR)/Tintin_reporter.cpp \
+				$(SRCDIR)/Server.cpp \
 				$(TESTS)
 OBJS	  	:= $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 

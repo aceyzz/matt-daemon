@@ -6,6 +6,7 @@
 *.lo
 *.o
 *.obj
+obj/
 
 # Precompiled Headers
 *.gch
@@ -43,3 +44,8 @@
 # env
 *.env
 *secrets*
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace

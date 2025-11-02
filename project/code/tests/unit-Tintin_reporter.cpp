@@ -56,10 +56,10 @@ int test_TintinReporter() {
 
 	std::string content;
 	R.expectTrue("read log file after writes", read_file_all(logFile, content));
-	R.expectContains("contains [INFO]\\thello-info",  content, "] [INFO]\thello-info");
-	R.expectContains("contains [WARN]\\thello-warn",  content, "] [WARN]\thello-warn");
-	R.expectContains("contains [ERROR]\\thello-error",content, "] [ERROR]\thello-error");
-	R.expectContains("contains [LOG]\\thello-log",    content, "] [LOG]\thello-log");
+	R.expectContains("contains [ INF ] - MattDaemon: hello-info",  content, "] [ INF ] - MattDaemon: hello-info");
+	R.expectContains("contains [ WRN ] - MattDaemon: hello-warn",  content, "] [ WRN ] - MattDaemon: hello-warn");
+	R.expectContains("contains [ ERR ] - MattDaemon: hello-error", content, "] [ ERR ] - MattDaemon: hello-error");
+	R.expectContains("contains [ LOG ] - MattDaemon: hello-log",    content, "] [ LOG ] - MattDaemon: hello-log");
 
 	uint64_t sz = 0; FileOps::sizeOf(logFile, sz);
 	const uint64_t maxSz = static_cast<uint64_t>(MD_LOG_MAX_SIZE);
