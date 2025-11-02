@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+
+# env
+*.env
+*secrets*

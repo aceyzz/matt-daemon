@@ -1,0 +1,17 @@
+networks:
+  matt-daemon-net:
+    driver: bridge
+
+services:
+  matt-daemon:
+    build: ./vm
+    container_name: matt-daemon
+    hostname: matt-daemon
+    ports:
+      - "4242:4242"
+    networks:
+      - matt-daemon-net
+    volumes:
+      - ./code:/work
+    working_dir: /work
+    command: ["sleep", "infinity"]
