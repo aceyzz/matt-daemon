@@ -1,25 +1,38 @@
+# --------------------------------------------------------------------- #
+# 	Variables
+# --------------------------------------------------------------------- #
 NAME        := MattDaemon
 
-SRCDIR	 	:= ./src
-INCDIR	 	:= ./inc
-OBJDIR	 	:= ./obj
+# Dirs
+SRCDIR	 	:= /work/src
+INCDIR	 	:= /work/inc
+OBJDIR	 	:= /work/obj
+TSTDIR	 	:= /work/tests
 
+# Flags & cmds
 CC	  		:= g++
-CFLAGS	  	:= -Wall -Wextra -Werror -std=c++11
+CFLAGS	  	:= -Wall -Wextra -Werror -Wpedantic -std=c++11
 INFLAGS		:= -I$(INCDIR)
 MAKEFLAGS	:= --no-print-directory
-
 RM	  		:= rm -rf
 
-SRCS	  	:= $(SRCDIR)/main.cpp
+# Sources
+TESTS	  	:= $(TSTDIR)/unit-FileOps.cpp
+SRCS	  	:= $(SRCDIR)/main.cpp \
+			   $(SRCDIR)/FileOps.cpp \
+			   $(TESTS)
 OBJS	  	:= $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
+# Colors
 CYA		  	:= \033[0;36m
 GRE	  		:= \033[0;32m
 YEL	  		:= \033[0;33m
 RED	  		:= \033[0;31m
 RST	  		:= \033[0m
 
+# --------------------------------------------------------------------- #
+# 	Regles
+# --------------------------------------------------------------------- #
 all: $(NAME)
 
 $(NAME): $(OBJS)
@@ -47,3 +60,12 @@ fclean: clean
 	@echo "$(GRE)[√]$(RST) Executable file has been removed"
 
 re: fclean all
+
+leaks:
+	@echo "$(YEL)[!]$(RST) Running leaks check on $(NAME)..."
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(NAME)
+
+# --------------------------------------------------------------------- #
+# 	Phony targets
+# --------------------------------------------------------------------- #
+.PHONY: all clean fclean re leaks
