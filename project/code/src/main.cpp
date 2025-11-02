@@ -4,6 +4,7 @@ static int unit_tests()
 {
 	int	ret = 0;
 	ret += test_FileOps();
+	ret += test_TintinReporter();
 	// autres tests des classes
 
 	std::cout << "Unit tests completed with " << ret << " errors." << std::endl;

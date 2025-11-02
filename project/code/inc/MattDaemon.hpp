@@ -25,5 +25,4 @@
 #include "Colors.hpp"
 #include "Tests.hpp"
 #include "FileOps.hpp"
-
-#define TEST_MODE 1
+#include "Config.hpp"

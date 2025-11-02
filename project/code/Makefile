@@ -18,10 +18,13 @@ RM	  		:= rm -rf
 
 # Sources
 TESTS	  	:= $(TSTDIR)/unit-FileOps.cpp \
+				$(TSTDIR)/unit-Tintin_reporter.cpp \
+				$(TSTDIR)/runner.cpp \
 				$(TSTDIR)/utils.cpp
 
 SRCS	  	:= $(SRCDIR)/main.cpp \
 				$(SRCDIR)/FileOps.cpp \
+				$(SRCDIR)/Tintin_reporter.cpp \
 				$(TESTS)
 OBJS	  	:= $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
@@ -52,14 +55,14 @@ $(OBJDIR):
 	@echo "$(YEL)[!]$(RST) Created object directory"
 
 clean:
-	@echo "$(RED)[-]$(RST) Removing object files..."
-	@$(RM) $(OBJDIR)
-	@echo "$(GRE)[√]$(RST) Object files have been removed"
+	@$(RM) $(OBJDIR) > /dev/null 2>&1 || true
+	@echo "$(RED)[-]$(RST) Object files have been removed"
 
 fclean: clean
-	@echo "$(RED)[-]$(RST) Removing executable file..."
-	@$(RM) $(NAME)
-	@echo "$(GRE)[√]$(RST) Executable file has been removed"
+	@$(RM) $(NAME) > /dev/null 2>&1 || true
+	@echo "$(RED)[-]$(RST) Executable file has been removed"
+	@$(RM) /var/log/matt-daemon/ > /dev/null 2>&1 || true
+	@echo "$(RED)[-]$(RST) Log files have been removed"
 
 re: fclean all
 

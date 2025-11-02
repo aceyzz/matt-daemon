@@ -11,21 +11,6 @@ struct TestContext {
 	std::string beforeReopen;
 };
 
-struct Runner {
-	int failures = 0;
-	std::string failingList;
-
-	void expectTrue(const std::string& name, bool ok) {
-		print_result(name, "true", ok ? "true" : "false", ok);
-		if (!ok) { ++failures; failingList += "\n - " + name; }
-	}
-
-	void expectEq(const std::string& name, const std::string& expected, const std::string& obtained, bool ok) {
-		print_result(name, expected, ok ? expected : ("false (\"" + obtained + "\")"), ok);
-		if (!ok) { ++failures; failingList += "\n - " + name; }
-	}
-};
-
 int test_FileOps() {
 	std::cout << CYAN "=================== FileOps ===================" RST "\n";
 
