@@ -18,8 +18,7 @@ int	main()
 		return (EXIT_FAILURE);
 	}
 
-	if (TEST_MODE)
-		return (unit_tests());
+	if (TEST_MODE) return (unit_tests());
 
 	std::cout << "MattDaemon initialized." << std::endl;
     return 0;
