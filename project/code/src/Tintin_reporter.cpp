@@ -35,9 +35,9 @@ bool Tintin_reporter::error(const std::string& msg){ return write(ERROR,msg); }
 const char* Tintin_reporter::levelToStr(Level level) {
 	switch (level) {
 		case LOG:   return "LOG";
-		case INFO:  return "INFO";
-		case WARN:  return "WARN";
-		case ERROR: return "ERROR";
+		case INFO:  return "INF";
+		case WARN:  return "WRN";
+		case ERROR: return "ERR";
 	}
 	return "LOG";
 }
@@ -56,9 +56,9 @@ std::string Tintin_reporter::formatLine(Level level, const std::string& msg) {
 	s.reserve(32 + 8 + msg.size());
 	s.push_back('[');
 	s += getTimestampNow();
-	s += "] [";
+	s += "] [ ";
 	s += levelToStr(level);
-	s += "]\t";
+	s += " ] - MattDaemon: ";
 	s += msg;
 	return s;
 }
