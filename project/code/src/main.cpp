@@ -1,4 +1,5 @@
 #include "MattDaemon.hpp"
+#include "Daemon.hpp"
 
 static int unit_tests()
 {
@@ -6,7 +7,6 @@ static int unit_tests()
 	ret += test_FileOps();
 	ret += test_TintinReporter();
 	ret += test_Server();
-	// autres tests des classes
 
 	std::cout << "Unit tests completed with " << ret << " errors." << std::endl;
 	return (ret > 0 ? EXIT_FAILURE : EXIT_SUCCESS);
@@ -20,8 +20,8 @@ int	main()
 		return (EXIT_FAILURE);
 	}
 
-	if (TEST_MODE) return (unit_tests());
+	if (TEST_MODE) return unit_tests();
 
-	std::cout << "MattDaemon initialized." << std::endl;
-    return 0;
+	Daemon	matt_daemon;;
+    return matt_daemon.start();
 }

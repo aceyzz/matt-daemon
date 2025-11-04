@@ -128,10 +128,12 @@ bool Tintin_reporter::rotateIfNeeded(std::size_t incomingBytes) {
 }
 
 bool Tintin_reporter::write(Level level, const std::string& msg) {
-	if (!ensureReady()) return false;
+	if (!ensureReady())
+		return false;
 
 	std::string line = formatLine(level, msg);
-	if (!rotateIfNeeded(line.size() + 1)) return false;
+	if (!rotateIfNeeded(line.size() + 1))
+		return false;
 
 	bool ok = _fops.writeLine(line);
 	if (ok) {

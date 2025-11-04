@@ -30,3 +30,8 @@
 #include "Tests.hpp"
 #include "FileOps.hpp"
 #include "Config.hpp"
+
+// signaux
+void md_signal_request_stop();
+bool md_signal_stop_requested();
+void md_signal_clear();

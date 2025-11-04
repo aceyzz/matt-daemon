@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server() : _listenFd(-1), _running(false) {}
+Server::Server() : _listenFd(-1), _running(false), _logger() {}
 
 Server::Server(const Server &other) {
 	(void)other;
@@ -121,9 +121,18 @@ int Server::clientCount() const {
 	return static_cast<int>(_clients.size());
 }
 
+// patch: 'linger' pour forcer la fermeture immédiate (unit test failed 04.11)
 void Server::closeAll() {
 	for (std::unordered_map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		::close(it->first);
+		int fd = it->first;
+		if (fd == _listenFd)
+			continue;
+		linger lg;
+		lg.l_onoff = 1;
+		lg.l_linger = 0;
+		::setsockopt(fd, SOL_SOCKET, SO_LINGER, &lg, sizeof(lg));
+		::shutdown(fd, SHUT_RDWR);
+		::close(fd);
 	}
 	_clients.clear();
 	_logger.info("All clients disconnected.");
@@ -262,7 +271,11 @@ void Server::handleWrite(int clientFd) {
 }
 
 void Server::tick() {
-	// Placeholder pour taches periodiques
+	if (md_signal_stop_requested()) {
+		_logger.info("Signal received, stopping daemon...");
+		md_signal_clear();
+		this->stop();
+	}
 }
 
 void Server::run() {

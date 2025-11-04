@@ -24,9 +24,11 @@ TESTS	  	:= $(TSTDIR)/unit-FileOps.cpp \
 				$(TSTDIR)/utils.cpp
 
 SRCS	  	:= $(SRCDIR)/main.cpp \
+				$(SRCDIR)/Daemon.cpp \
 				$(SRCDIR)/FileOps.cpp \
 				$(SRCDIR)/Tintin_reporter.cpp \
 				$(SRCDIR)/Server.cpp \
+				$(SRCDIR)/signal.cpp \
 				$(TESTS)
 OBJS	  	:= $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
@@ -63,14 +65,20 @@ clean:
 fclean: clean
 	@$(RM) $(NAME) > /dev/null 2>&1 || true
 	@echo "$(RED)[-]$(RST) Executable file has been removed"
-	@$(RM) /var/log/matt-daemon/ > /dev/null 2>&1 || true
-	@echo "$(RED)[-]$(RST) Log files have been removed"
 
 re: fclean all
 
+clean-logs:
+	@$(RM) /var/log/matt_daemon/ > /dev/null 2>&1 || true
+	@echo "$(RED)[-]$(RST) Log files have been removed"
+
 leaks:
 	@echo "$(YEL)[!]$(RST) Running leaks check on $(NAME)..."
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(NAME)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --errors-for-leak-kinds=definite,indirect,possible ./$(NAME)
+
+monitor:
+	@echo "$(YEL)[!]$(RST) Monitoring logs in /var/log/matt_daemon/ ..."
+	@tail -f /var/log/matt_daemon/matt_daemon.log
 
 # --------------------------------------------------------------------- #
 # 	Phony targets
