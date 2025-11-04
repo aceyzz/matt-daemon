@@ -193,8 +193,13 @@ bool Server::sendLine(int clientFd, const std::string &line) {
 
 // si on veux ajouter dautres commandes, le faire ici
 bool Server::processLine(int clientFd, const std::string &line) {
-	if (line == SRV_CMD_QUIT) {
-		this->disconnect(clientFd, "client sent quit request");
+	std::string trimmed = line;
+	trimmed.erase(0, trimmed.find_first_not_of(" \t\r\n"));
+	trimmed.erase(trimmed.find_last_not_of(" \t\r\n") + 1);
+
+	if (trimmed == SRV_CMD_QUIT) {
+		_logger.info("Received QUIT command from user [" + std::to_string(clientFd) + "].");
+		this->stop();
 		return false;
 	}
 	return true;
@@ -222,6 +227,8 @@ void Server::handleRead(int clientFd) {
 				if (!line.empty() && line.back() == '\r')
 					line.pop_back();
 				it->second.inputBuffer.erase(0, pos + 1);
+
+				_logger.log("User [" + std::to_string(clientFd) + "] input: " + line);
 				if (!this->processLine(clientFd, line))
 					return;
 			}

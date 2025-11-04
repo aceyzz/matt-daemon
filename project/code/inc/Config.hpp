@@ -1,7 +1,7 @@
 #pragma once
 
 // Test mode flag
-#define TEST_MODE 1
+#define TEST_MODE 0
 
 // Config pour Tintin_reporter
 #define MD_LOG_DIR "/var/log/matt-daemon/"
