@@ -16,6 +16,8 @@ class Server {
 		void	run();
 		void	tick();
 
+		Tintin_reporter &getLogger();
+
 	private:
 		// Desactiver les autres, pas besoin mais présent (Coplien)
 		Server(const Server &other);

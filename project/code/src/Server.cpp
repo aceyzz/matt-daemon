@@ -327,3 +327,7 @@ void Server::run() {
 		}
 	}
 }
+
+Tintin_reporter &Server::getLogger() {
+	return _logger;
+}
