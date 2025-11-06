@@ -13,5 +13,6 @@ services:
       - matt-daemon-net
     volumes:
       - ./code:/work
+      - ./logs:/var/log/matt_daemon
     working_dir: /work
     command: ["sleep", "infinity"]
