@@ -7,7 +7,6 @@ NAME        := MattDaemon
 SRCDIR	 	:= /work/src
 INCDIR	 	:= /work/inc
 OBJDIR	 	:= /work/obj
-TSTDIR	 	:= /work/tests
 
 # Flags & cmds
 CC	  		:= g++
@@ -17,19 +16,13 @@ MAKEFLAGS	:= --no-print-directory
 RM	  		:= rm -rf
 
 # Sources
-TESTS	  	:= $(TSTDIR)/unit-FileOps.cpp \
-				$(TSTDIR)/unit-Tintin_reporter.cpp \
-				$(TSTDIR)/unit-Server.cpp \
-				$(TSTDIR)/runner.cpp \
-				$(TSTDIR)/utils.cpp
-
 SRCS	  	:= $(SRCDIR)/main.cpp \
 				$(SRCDIR)/Daemon.cpp \
 				$(SRCDIR)/FileOps.cpp \
 				$(SRCDIR)/Tintin_reporter.cpp \
 				$(SRCDIR)/Server.cpp \
-				$(SRCDIR)/signal.cpp \
-				$(TESTS)
+				$(SRCDIR)/signal.cpp
+
 OBJS	  	:= $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
 # Colors
@@ -45,14 +38,12 @@ RST	  		:= \033[0m
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	@echo "$(CYA)[+]$(RST) $@"
 	@$(CC) $(CFLAGS) $(INFLAGS) -o $@ $^
 	@echo "$(GRE)[√]$(RST) $(NAME) has been built successfully"
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	@echo "$(CYA)[+]$(RST) Compiling $<"
 	@$(CC) $(CFLAGS) $(INFLAGS) -c $< -o $@
-	@echo "$(GRE)[√]$(RST) $< has been compiled successfully"
 
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)

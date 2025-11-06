@@ -27,7 +27,6 @@
 #include <signal.h>
 
 #include "Colors.hpp"
-#include "Tests.hpp"
 #include "FileOps.hpp"
 #include "Config.hpp"
 
