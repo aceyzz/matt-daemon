@@ -5,6 +5,7 @@ networks:
 services:
   matt-daemon:
     build: ./vm
+    init: true
     container_name: matt-daemon
     hostname: matt-daemon
     ports:

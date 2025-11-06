@@ -16,8 +16,7 @@ void	Daemon::_ignoreSignal(int signum) {
 }
 
 void Daemon::_onSignal(int signum) {
-	(void)signum;
-	md_signal_request_stop();
+	md_signal_request_stop(signum);
 }
 
 bool Daemon::daemonize() {
@@ -28,7 +27,7 @@ bool Daemon::daemonize() {
 
 	// kill du parent
 	if (pid > 0)
-		_exit(0);
+		exit(0);
 
 	// devenir session leader
 	if (::setsid() < 0)
@@ -41,7 +40,7 @@ bool Daemon::daemonize() {
 
 	// kill du parent
 	if (pid > 0)
-		_exit(0);
+		exit(0);
 
 	::umask(027);
 	if (::chdir("/") != 0)
@@ -136,6 +135,7 @@ int Daemon::start() {
 	::sigaction(SIGINT,  &sa, 0);
 	::sigaction(SIGTERM, &sa, 0);
 	::sigaction(SIGHUP,  &sa, 0);
+	::sigaction(SIGQUIT, &sa, 0);
 
 	if (!_server.start()) {
 		releaseLock();

@@ -271,8 +271,9 @@ void Server::handleWrite(int clientFd) {
 }
 
 void Server::tick() {
-	if (md_signal_stop_requested()) {
-		_logger.info("Signal received, stopping daemon...");
+	int signal = md_signal_stop_requested();
+	if (signal != 0) {
+		_logger.info("Signal [" + std::to_string(signal) + "] \"" + (strsignal(signal) ? strsignal(signal) : "unknown") + "\" received, stopping daemon...");
 		md_signal_clear();
 		this->stop();
 	}
