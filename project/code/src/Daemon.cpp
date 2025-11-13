@@ -92,6 +92,7 @@ bool Daemon::acquireLock() {
 
 void Daemon::releaseLock() {
 	if (_lockFd >= 0) {
+		::flock(_lockFd, LOCK_UN);
 		_fops.closeFd(_lockFd);
 		_lockFd = -1;
 		_fops.removeFile(MD_LOCK_FILE);

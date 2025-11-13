@@ -145,13 +145,22 @@ void Server::acceptNew() {
 		int cfd = ::accept(_listenFd, reinterpret_cast<sockaddr*>(&cli), &len);
 		if (cfd < 0) {
 			if (errno == EAGAIN || errno == EWOULDBLOCK) break;
-			_logger.error("accept failed");
+			_logger.error("accept failed: " + std::string(std::strerror(errno)));
 			break;
 		}
 
 		if ((int)_clients.size() >= SRV_MAX_CLIENTS) {
 			linger lg; lg.l_onoff = 1; lg.l_linger = 0;
 			::setsockopt(cfd, SOL_SOCKET, SO_LINGER, &lg, sizeof(lg));
+
+			const char *msg = "Error: too many clients connected, try again later.\n";
+			(void)::send(cfd, msg, std::strlen(msg), 0);
+
+			_logger.warn(std::string("Rejected connection from ")
+				+ std::string(::inet_ntoa(cli.sin_addr)) + ":"
+				+ std::to_string(ntohs(cli.sin_port))
+				+ " - max clients reached.");
+
 			::close(cfd);
 			continue;
 		}
@@ -170,7 +179,7 @@ void Server::acceptNew() {
 		c.peer = std::string(ipStr);
 		_clients[cfd] = c;
 
-		_logger.info("client connected " + c.peer + ":" + std::to_string(c.port));
+		_logger.info("client connected [" + std::to_string(c.fd) + "] " + c.peer + ":" + std::to_string(c.port));
 	}
 }
 
@@ -211,6 +220,8 @@ bool Server::processLine(int clientFd, const std::string &line) {
 		this->stop();
 		return false;
 	}
+
+	_logger.log("User [" + std::to_string(clientFd) + "] input: " + line);
 	return true;
 }
 
@@ -237,7 +248,6 @@ void Server::handleRead(int clientFd) {
 					line.pop_back();
 				it->second.inputBuffer.erase(0, pos + 1);
 
-				_logger.log("User [" + std::to_string(clientFd) + "] input: " + line);
 				if (!this->processLine(clientFd, line))
 					return;
 			}
