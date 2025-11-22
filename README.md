@@ -119,11 +119,7 @@ nc 127.0.0.1 4242
 
 ## Grade
 
-<img src="./utils/85.png" alt="Grade" width="150">
-
-Deux soucis ont ete remontés lors de la soutenance :  
-- Il faut explicitement utiliser `LOCK_EX` et `LOCK_UN` avec `flock()` pour le verrouillage du fichier afin d'éviter les blocages. `LOCK_EX` pour le verouillage a été implémenté, mais le `LOCK_UN` ne me semblait pas necessaire car le fichier de lock est supprimé a la fin du programme, ce qui libere automatiquement le verrou. Or, il est explicitement demandé dans la feuille d'evaluation d'utiliser `LOCK_UN` (tres discutable). Correction faite dans la version finale.  
-- Lorsque le nombre d'utilisateurs connectés dépasse la limite, un message d'erreur explicite doit etre affiché (côté client et/ou logs serveur). Dans mon implementation initiale, aucun des deux n'a ete fait = faux. Correction faite dans la version finale, avec log serveur + message client.
+<img src="./utils/105.png" alt="Grade" width="150">
 
 <br>
 
